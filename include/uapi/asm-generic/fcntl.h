@@ -111,6 +111,17 @@
 #define F_GETSIG	11	/* for sockets. */
 #endif
 
+/* O_TMPFILE was added in Linux 3.11, but Bionic >= 11 needs it */
+#ifndef __O_TMPFILE
+#define __O_TMPFILE     020000000
+#endif
+#ifndef O_TMPFILE
+#define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
+#endif
+#ifndef O_TMPFILE_MASK
+#define O_TMPFILE_MASK (__O_TMPFILE | O_DIRECTORY | O_CREAT)
+#endif
+
 #ifndef CONFIG_64BIT
 #ifndef F_GETLK64
 #define F_GETLK64	12	/*  using 'struct flock64' */
@@ -180,6 +191,17 @@ struct flock {
 	__kernel_pid_t	l_pid;
 	__ARCH_FLOCK_PAD
 };
+#endif
+
+/* O_TMPFILE was added in Linux 3.11, but Bionic >= 11 needs it */
+#ifndef __O_TMPFILE
+#define __O_TMPFILE     020000000
+#endif
+#ifndef O_TMPFILE
+#define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
+#endif
+#ifndef O_TMPFILE_MASK
+#define O_TMPFILE_MASK (__O_TMPFILE | O_DIRECTORY | O_CREAT)
 #endif
 
 #ifndef CONFIG_64BIT
