@@ -28,13 +28,15 @@ static struct xfrm_policy_afinfo xfrm6_policy_afinfo;
 
 static struct dst_entry *xfrm6_dst_lookup(struct net *net, int tos,
 					  const xfrm_address_t *saddr,
-					  const xfrm_address_t *daddr)
+					  const xfrm_address_t *daddr,
+					  u32 mark)
 {
 	struct flowi6 fl6;
 	struct dst_entry *dst;
 	int err;
 
 	memset(&fl6, 0, sizeof(fl6));
+	fl6.flowi6_mark = mark;
 	memcpy(&fl6.daddr, daddr, sizeof(fl6.daddr));
 	if (saddr)
 		memcpy(&fl6.saddr, saddr, sizeof(fl6.saddr));
@@ -51,12 +53,13 @@ static struct dst_entry *xfrm6_dst_lookup(struct net *net, int tos,
 }
 
 static int xfrm6_get_saddr(struct net *net,
-			   xfrm_address_t *saddr, xfrm_address_t *daddr)
+			   xfrm_address_t *saddr, xfrm_address_t *daddr,
+			   u32 mark)
 {
 	struct dst_entry *dst;
 	struct net_device *dev;
 
-	dst = xfrm6_dst_lookup(net, 0, NULL, daddr);
+	dst = xfrm6_dst_lookup(net, 0, NULL, daddr, mark);
 	if (IS_ERR(dst))
 		return -EHOSTUNREACH;
 
@@ -135,9 +138,6 @@ _decode_session6(struct sk_buff *skb, struct flowi *fl, int reverse)
 	struct ipv6_opt_hdr *exthdr;
 	const unsigned char *nh = skb_network_header(skb);
 	u8 nexthdr = nh[IP6CB(skb)->nhoff];
-	if (IP6CB(skb)->nhoff == 0) {
-		nexthdr = ipv6_hdr(skb)->nexthdr;
-	}
 
 	memset(fl6, 0, sizeof(struct flowi6));
 	fl6->flowi6_mark = skb->mark;
@@ -287,7 +287,7 @@ static struct dst_ops xfrm6_dst_ops = {
 	.destroy =		xfrm6_dst_destroy,
 	.ifdown =		xfrm6_dst_ifdown,
 	.local_out =		__ip6_local_out,
-	.gc_thresh =		32768,
+	.gc_thresh =		1024,
 };
 
 static struct xfrm_policy_afinfo xfrm6_policy_afinfo = {
