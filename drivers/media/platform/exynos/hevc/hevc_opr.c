@@ -27,7 +27,7 @@
 #include <asm/cacheflush.h>
 
 #ifdef CONFIG_EXYNOS_CONTENT_PATH_PROTECTION
-#include <config/exynos/iovmm.h>
+#include <linux/exynos_iovmm.h>
 #endif
 
 #include "hevc_common.h"
